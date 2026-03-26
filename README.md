@@ -115,6 +115,24 @@ cimg [options] [input]
 - **路径**：Windows 与 Unix 路径均可；建议对含空格的路径加引号。
 - **质量范围**：`--quality` 须为 **1–100** 的整数；`--size` 若提供则须为 **正整数**。
 
+## 发布到 npm（维护者）
+
+仓库通过 [`.github/workflows/publish-npm.yml`](.github/workflows/publish-npm.yml) 在发布 GitHub Release 或手动触发 workflow 时执行 `npm publish --provenance`。
+
+### 本地自检（可选）
+
+在项目根目录执行：
+
+```bash
+npm pkg fix
+```
+
+会按 npm 建议整理 `package.json`（例如 `repository` 等字段格式）。执行后用 `git diff` 查看变更，确认无误再提交。
+
+### GitHub Actions Secrets
+
+在 GitHub 仓库 **Settings → Secrets and variables → Actions** 中配置 **`NPM_TOKEN`**：使用 [npm](https://www.npmjs.com/) 帐号的 **Automation** 类型 token（或具备发布权限的 token），与 workflow 里 `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` 对应。未配置或 token 无效时，发布步骤会在认证阶段失败。
+
 ## 依赖说明
 
 核心库：[sharp](https://sharp.pixelplumbing.com/)、[commander](https://github.com/tj/commander.js)。项目自身许可证以仓库根目录声明为准（若有）。
