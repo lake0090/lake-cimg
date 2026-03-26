@@ -1,0 +1,31 @@
+# Publish to npm when a GitHub Release is published.
+# Prerequisite: add repository secret NPM_TOKEN (npm automation token).
+# See: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Publish Package to npmjs
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch: # 加上这一行，就可以手动点按钮触发了
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

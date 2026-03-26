@@ -1,0 +1,30 @@
+{
+  "name": "lake-cimg",
+  "version": "0.0.1",
+  "description": "Batch image compression to WebP — single file or folder",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octocat/my-other-repo.git"
+  },
+  "type": "module",
+  "main": "lib/compress.js",
+  "bin": {
+    "cimg": "bin/cimg.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "compress": "node bin/cimg.js",
+    "start": "node bin/cimg.js"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "sharp": "^0.33.0"
+  }
+}
