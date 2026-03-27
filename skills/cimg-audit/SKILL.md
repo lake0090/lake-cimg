@@ -15,7 +15,7 @@ Use **`npx lake-cimg@latest`** from the project root (no global install).
 
 Copy into a task list and tick as you go:
 
-- [ ] **1. Scan (read-only):** `npx lake-cimg@latest scan-code <dir>` — **stdout is JSON** (default); **`--plain`** for a short text summary. Prefer an **absolute** path for `<dir>`.
+- [ ] **1. Scan (read-only):** `npx lake-cimg@latest scan-code [path]` — **stdout is JSON** (default); **`--plain`** for a short text summary. Omit `path` for the whole tree under cwd, or pass a **file** to audit one page, or a **folder** to scope the scan.
 - [ ] **2. Triage `issues`:** Each JSON row has `issues` (string codes) and **`hints`** (human-readable, often Chinese)—use **`hints` first** when choosing a fix; codes are for filtering and grouping. Possible codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format`, `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`.
 - [ ] **3. Fix markup:** add `width`/`height`, CSS `aspect-ratio`, or intentional `object-fit: cover|contain` when the box ratio must differ from the asset.
 - [ ] **4. Optimize assets last:** `npx lake-cimg@latest <path> [options]`; for AVIF+WebP+JPEG stacks: `npx lake-cimg@latest picture <input> -O <outDir>` (see package README).
@@ -36,7 +36,7 @@ Dynamic **`src`** (e.g. `:src` without a static path) → **`needs_manual_review
 
 | Command | Role |
 | --- | --- |
-| `npx lake-cimg@latest scan-code <dir>` | Reference audit (JSON default; `--plain` for text) |
+| `npx lake-cimg@latest scan-code [path]` | Reference audit (JSON default; `--plain` for text). Omit `path` = current dir; `path` = dir or one source file |
 | `npx lake-cimg@latest <path>` | Compress / WebP (`--help` for `-o`, `-s`, `-q`, `-r`) |
 | `npx lake-cimg@latest picture <input> -O <outDir>` | One source → AVIF + WebP + JPEG for `<picture>` |
 
@@ -44,10 +44,22 @@ Dynamic **`src`** (e.g. `:src` without a static path) → **`needs_manual_review
 
 ## Examples
 
+**Whole project (from repo root, `path` omitted):**
+
+```bash
+npx lake-cimg@latest scan-code
+```
+
 **Read-only audit (stdout = JSON for parsing):**
 
 ```bash
 npx lake-cimg@latest scan-code /absolute/path/to/project
+```
+
+**Single file:**
+
+```bash
+npx lake-cimg@latest scan-code /absolute/path/to/src/about.pug
 ```
 
 Use **`--plain`** when you want a short **text** summary in the terminal instead of JSON.

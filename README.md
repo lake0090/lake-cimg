@@ -110,17 +110,18 @@ npx lake-cimg@latest picture <input> -O <outDir> [选项]
 - **格式**：对 JPEG/PNG 等提示可考虑 WebP/AVIF 或 `picture` 子命令
 
 ```text
-npx lake-cimg@latest scan-code <dir> [--no-recursive] [--limit <n>] [--issues-only] [--plain]
+npx lake-cimg@latest scan-code [path] [--no-recursive] [--limit <n>] [--issues-only] [--plain]
 ```
 
-| 选项 | 说明 |
+| 参数 / 选项 | 说明 |
 | --- | --- |
-| `-r, --recursive` | 递归子目录（默认开启） |
+| `path` | 可选。省略时等价于 `.`（当前工作目录，一般在项目根执行）。可为**目录**（递归扫描其下源码）或**单个源码文件**（如某 `.pug` / `.vue`，只扫该文件） |
+| `-r, --recursive` | 递归子目录（默认开启；仅对**目录**扫描有效） |
 | `--limit <n>` | 最多输出多少条引用点（默认 `500`） |
 | `--issues-only` | 仅输出 `issues` 非空的条目 |
 | `--plain` | 简要文本而非 JSON（默认 stdout 为 JSON） |
 
-默认会跳过 `node_modules`、`dist`、`.git` 等目录。动态 `src`、远程 URL、别名路径会进入报告但通常无法解析到磁盘文件。
+目录扫描时默认会跳过 `node_modules`、`dist`、`.git` 等子目录。动态 `src`、远程 URL、别名路径会进入报告但通常无法解析到磁盘文件。
 
 ### 前端最佳实践（React / `<picture>`）
 
@@ -153,7 +154,7 @@ npx lake-cimg@latest scan-code <dir> [--no-recursive] [--limit <n>] [--issues-on
 - `processOne(inputPath, options)` — 单文件
 - `collectFiles(inputPath, recursive)` — 枚举待处理路径
 - `scanAssets(dir, options)` — `lib/scanAssets.js`，按文件体积筛选偏大图片并生成建议（供脚本或自建工具使用）
-- `scanCodeReferences(rootDir, options)` — `lib/scanCodeReferences.js`，扫描源码引用并结合像素尺寸给出 CLS / 比例 / 格式类建议（供 CLI 或脚本使用）
+- `scanCodeReferences(path, options)` — `lib/scanCodeReferences.js`，`path` 为目录或单个支持的源码文件（或 `.`），扫描源码引用并结合像素尺寸给出 CLS / 比例 / 格式类建议（供 CLI 或脚本使用）
 - `processPictureStack(inputPath, options)` — `lib/pictureStack.js`，一次写出 AVIF / WebP / JPEG
 
 适合在构建脚本或 Node 服务中复用同一套逻辑。

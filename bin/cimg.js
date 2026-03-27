@@ -218,9 +218,9 @@ program
   });
 
 program
-  .command("scan-code <dir>")
+  .command("scan-code [path]")
   .description(
-    "扫描源码中的图片引用（html/vue/pug/js/ts/tsx/jsx），结合像素尺寸给出 CLS / 比例 / 格式建议（只读）"
+    "扫描源码中的图片引用（html/vue/pug/js/ts/tsx/jsx），结合像素尺寸给出 CLS / 比例 / 格式建议（只读）。省略 path 时扫描当前目录；path 可为目录或单个源码文件"
   )
   .option("-r, --recursive", "递归扫描子目录", true)
   .option("--no-recursive", "不递归子目录")
@@ -232,12 +232,10 @@ program
   )
   .option("--issues-only", "仅输出含 issues 的条目")
   .option("--plain", "纯文本输出（默认 stdout 为 JSON）")
-  .action(async (dir, opts) => {
-    if (!dir || dir.trim() === "") {
-      program.outputHelp();
-      process.exit(1);
-    }
-    const root = resolveUserPath(dir);
+  .action(async (pathArg, opts) => {
+    const raw =
+      pathArg != null && typeof pathArg === "string" ? pathArg.trim() : "";
+    const root = resolveUserPath(raw !== "" ? raw : ".");
     const limit = Number.isNaN(opts.limit) ? 500 : opts.limit;
     try {
       const result = await scanCodeReferences(root, {

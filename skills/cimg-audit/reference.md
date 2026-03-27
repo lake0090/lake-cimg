@@ -89,7 +89,7 @@ Use **at most one** `fetchpriority="high"` (or `fetchPriority="high"` in React) 
 
 | Need | Command |
 | --- | --- |
-| Audit references + intrinsic size vs markup | `npx lake-cimg@latest scan-code <dir>` |
+| Audit references + intrinsic size vs markup | `npx lake-cimg@latest scan-code [path]` — omit `path` for cwd, or pass a dir / one source file |
 | One file → AVIF + WebP + JPEG | `npx lake-cimg@latest picture <input> -O <outDir>` |
 
 Full options: repository **README.md** at package root.
