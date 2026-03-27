@@ -1,7 +1,16 @@
 {
   "name": "lake-cimg",
-  "version": "0.0.1",
-  "description": "Batch image compression to WebP — single file or folder",
+  "version": "0.0.3",
+  "description": "Batch image compression to WebP — CLI plus Agent Skills for frontend image audit (scan-code, picture stack)",
+  "keywords": [
+    "image",
+    "compress",
+    "webp",
+    "sharp",
+    "agent-skills",
+    "skills",
+    "cursor"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lake0090/lake-cimg.git"
@@ -14,7 +23,8 @@
   "files": [
     "bin",
     "lib",
-    "README.md"
+    "README.md",
+    "skills"
   ],
   "publishConfig": {
     "access": "public"
