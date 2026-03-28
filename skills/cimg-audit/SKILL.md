@@ -49,9 +49,13 @@ More flags: `npx lake-cimg@latest scan-code --help`. Prefer an **absolute** `pat
 
 ## Workflow
 
-- [ ] **1. Scan (read-only):** `npx lake-cimg@latest scan-code [path]` — see **Invoke `scan-code`** above.
-- [ ] **2. Triage:** Prefer **`hints`** for what to change; use **`issues`** codes to group or filter. Common codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format` (default: **single WebP** — point `src` / `srcset` at `.webp` after exporting; use **`<picture>`** with AVIF/WebP + legacy fallback **only if the user explicitly asks** for multi-format markup or old-browser JPEG/PNG fallback), `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`.
-- [ ] **3. Fix then optimize:** Apply markup using [reference.md](reference.md) (`<img>` first; `<picture>` only when the user requires it). For **all** raster refs that need format or responsive delivery, not only one hero row. Compress / emit WebP: `npx lake-cimg@latest <path> [options]`. **Optional** full stack for `<picture>` when requested: `npx lake-cimg@latest picture <input> -O <outDir>` (details: package [README.md](../../README.md)).
+- [ ] **1. Scan (read-only):** From the **project root**, run `npx lake-cimg@latest scan-code [path]` — see **Invoke `scan-code`** above.
+- [ ] **2. Triage:** Read **`hints`** first; group work by **`issues`**. Common codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format`, `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`. How to mark up (default **single WebP**, **`<picture>`** only if the user asks): [reference.md](reference.md) and **Rules of thumb** below.
+- [ ] **3. Fix then optimize:**
+  - Update markup for **every** affected raster, not only one hero — follow [reference.md](reference.md).
+  - If you change a `public` asset’s extension (e.g. `.png` → `.webp`), **search the whole repo** for that path or **centralize** it in one constant — avoid updating only one page.
+  - On **repo static** files that need WebP or compression, run `npx lake-cimg@latest <path> [options]`.
+  - **Only if** the user wants a full `<picture>` stack: `npx lake-cimg@latest picture <input> -O <outDir>` — flags: `npx lake-cimg@latest picture --help`. Narrative docs (work when this skill lives outside the **lake-cimg** repo): [GitHub `lake0090/lake-cimg`](https://github.com/lake0090/lake-cimg).
 
 ## Rules of thumb
 
@@ -64,6 +68,8 @@ More flags: `npx lake-cimg@latest scan-code --help`. Prefer an **absolute** `pat
 ## What the scanner cannot resolve
 
 Dynamic **`src`** without a static path → **`needs_manual_review`**. **`http(s):`** and **`data:`** → **`cannot_resolve`** (no network fetch / decode). **`~/…`** only resolves if you pass **`--alias "~=relativeDir"`** (quote as needed in your shell); there is no default for `~`.
+
+**Next.js:** If `next.config.*` sets **`images.unoptimized: true`**, `next/image` does **not** auto-optimize or auto-convert PNG→WebP. Changing `<Image>` props alone is not a substitute for format work on **local** rasters — still use `lake-cimg` (or your build/CDN pipeline) when you want WebP (or other) output.
 
 **Aliases and root URLs:** Built-in default is **`@/` → `<project-root>/src/`**. Override or extend with **`--alias`**, set **`--project-root`** when the shell cwd is not the repo root, and use **`--public-dir`** when static assets live outside the default **`public`** / **`static`** folders. If a ref still does not map to a file on disk → **`cannot_resolve`**.
 
