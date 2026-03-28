@@ -25,15 +25,27 @@ Use **one** command starting with `npx` — **not** `cd … && npx …` (PowerSh
 
 **Output:** stdout is **only** pretty-printed JSON: `items[]` with `issues`, `hints`, `snippet`, `intrinsicWidth` / `intrinsicHeight` when metadata was read, plus top-level `summary` and scan metadata. **`--issues-only`** drops rows with empty `issues`. For **`missing_dimensions`**, use **`intrinsicWidth` / `intrinsicHeight`** on the same item and/or the English hint that repeats them.
 
+**`scan-code` flags (path resolution and filtering):**
+
+| Flag | Role |
+| --- | --- |
+| `--issues-only` | Only emit items that have non-empty `issues`. |
+| `--project-root <dir>` | Root used when resolving **`/…`** URL paths and alias bases (default: current working directory). |
+| `--public-dir <dir>` | Folder(s) under `project-root` where root-absolute paths like `/images/x.png` live; **repeatable**. If you pass this at least once, **only** the listed dirs are tried (defaults when omitted: **`public`**, **`static`**). |
+| `--alias <key=path>` | Map `key/…` to files under `project-root` / `path`; **repeatable**. Example: `--alias @=src` (built-in default), `--alias @aaa=packages/aaa`. Later pairs override the same `key`. |
+| `--limit <n>`, `--no-recursive` | Cap rows (default 500); disable directory recursion. |
+
 **Examples:**
 
 ```bash
 npx lake-cimg@latest scan-code
 npx lake-cimg@latest scan-code /absolute/path/to/src
 npx lake-cimg@latest scan-code /absolute/path/to/about.pug
+npx lake-cimg@latest scan-code --issues-only .
+npx lake-cimg@latest scan-code --project-root /abs/repo --public-dir dist --alias @=src
 ```
 
-More flags: `npx lake-cimg@latest scan-code --help` (e.g. `--limit`, `--issues-only`, `--no-recursive`). Prefer an **absolute** `path` if the shell cwd may not be the repo root.
+More flags: `npx lake-cimg@latest scan-code --help`. Prefer an **absolute** `path` if the shell cwd may not be the repo root.
 
 ## Workflow
 
@@ -51,9 +63,11 @@ More flags: `npx lake-cimg@latest scan-code --help` (e.g. `--limit`, `--issues-o
 
 ## What the scanner cannot resolve
 
-Dynamic **`src`** without a static path → **`needs_manual_review`**. **`http(s):`**, **`data:`**, and path aliases (**`@/`**, **`~/`**, etc.) → **`cannot_resolve`** (no alias map reads; no network fetch).
+Dynamic **`src`** without a static path → **`needs_manual_review`**. **`http(s):`** and **`data:`** → **`cannot_resolve`** (no network fetch / decode). **`~/…`** only resolves if you pass **`--alias "~=relativeDir"`** (quote as needed in your shell); there is no default for `~`.
 
-If **`hints`** mention alias skip: use **`rawRef`** and map the alias via Vite/webpack/tsconfig/Nuxt config. With a **real filesystem path**, run `npx lake-cimg@latest scan <resolved-path>` on assets or re-run **`scan-code`** on markup that uses resolvable relative paths. If unresolved, triage without intrinsic dimensions.
+**Aliases and root URLs:** Built-in default is **`@/` → `<project-root>/src/`**. Override or extend with **`--alias`**, set **`--project-root`** when the shell cwd is not the repo root, and use **`--public-dir`** when static assets live outside the default **`public`** / **`static`** folders. If a ref still does not map to a file on disk → **`cannot_resolve`**.
+
+Use **`rawRef`** plus project config when you need to reason about Vite/webpack paths the CLI does not know. With a **real filesystem path**, run `npx lake-cimg@latest scan <resolved-path>` on assets or re-run **`scan-code`** with the flags above. If unresolved, triage without intrinsic dimensions.
 
 ## Other CLI (after scan-code)
 
