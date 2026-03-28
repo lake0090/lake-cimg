@@ -220,7 +220,7 @@ program
 program
   .command("scan-code [path]")
   .description(
-    "扫描源码中的图片引用（html/vue/pug/js/ts/tsx/jsx），结合像素尺寸给出 CLS / 比例 / 格式建议（只读）。省略 path 时扫描当前目录；path 可为目录或单个源码文件"
+    "扫描源码图片引用并输出 JSON 建议（CLS/比例/格式）。path 可为目录或源码文件，省略时为当前目录"
   )
   .option("-r, --recursive", "递归扫描子目录", true)
   .option("--no-recursive", "不递归子目录")
@@ -231,7 +231,6 @@ program
     500
   )
   .option("--issues-only", "仅输出含 issues 的条目")
-  .option("--plain", "纯文本输出（默认 stdout 为 JSON）")
   .action(async (pathArg, opts) => {
     const raw =
       pathArg != null && typeof pathArg === "string" ? pathArg.trim() : "";
@@ -244,16 +243,7 @@ program
         limit,
         issuesOnly: !!opts.issuesOnly,
       });
-      if (!opts.plain) {
-        console.log(JSON.stringify(result, null, 2));
-      } else {
-        console.log(result.summary);
-        for (const it of result.items) {
-          console.log(
-            `${it.file}:${it.line} ${it.issues?.join(",") || ""} ${it.rawRef || ""} -> ${it.resolvedPath || "-"}`
-          );
-        }
-      }
+      console.log(JSON.stringify(result, null, 2));
       process.exit(0);
     } catch (err) {
       console.error("错误:", err.message);

@@ -9,62 +9,55 @@ description: >-
 
 # cimg image audit
 
-Use **`npx lake-cimg@latest`** from the project root (no global install).
+Run **`npx lake-cimg@latest`** from the **project root** (no global install).
 
-## Workflow
+<a id="invoke-scan-code"></a>
 
-Copy into a task list and tick as you go:
+## Invoke `scan-code`
 
-- [ ] **1. Scan (read-only):** `npx lake-cimg@latest scan-code [path]` — **stdout is JSON** (default); **`--plain`** for a short text summary. Omit `path` for the whole tree under cwd, or pass a **file** to audit one page, or a **folder** to scope the scan.
-- [ ] **2. Triage `issues`:** Each JSON row has `issues` (string codes) and **`hints`** (human-readable, often Chinese)—use **`hints` first** when choosing a fix; codes are for filtering and grouping. Possible codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format`, `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`.
-- [ ] **3. Fix markup:** add `width`/`height`, CSS `aspect-ratio`, or intentional `object-fit: cover|contain` when the box ratio must differ from the asset.
-- [ ] **4. Optimize assets last:** `npx lake-cimg@latest <path> [options]`; for AVIF+WebP+JPEG stacks: `npx lake-cimg@latest picture <input> -O <outDir>` (see package README).
+Use **one** command starting with `npx` — **not** `cd … && npx …` (PowerShell 5.1 on Windows does not support `&&`).
 
-## Rules of thumb
-
-- **Aspect ratio:** For undistorted display, match **display ratio** to **intrinsic** (width ÷ height). For crop/letterbox, use **`object-fit`** with explicit size/aspect-ratio.
-- **CLS:** Prefer **`width` and `height`** on `<img>` (or **`aspect-ratio`** when fluid) so space is reserved before paint.
-- **Responsive:** `<picture>` / **`srcset` + `sizes`**; align `type` with AVIF/WebP/JPEG; React uses **`srcSet`**. Use `picture` (and `-s`) to emit multiple width variants if needed.
-- **LCP:** At most one hero: **`fetchPriority="high"`**, **`loading="eager"`**; lazy-load the rest.
-- **Alt:** Describe **what’s in the image** and **how it supports the page** (subject + role in context). **Do not** stack keywords for SEO; empty **`alt=""`** only when the image is decorative.
-
-## Limits
-
-Dynamic **`src`** (e.g. `:src` without a static path) → **`needs_manual_review`**. Remote URLs, **`data:`**, and aliases (**`@/`**) → **`cannot_resolve`** until mapped to real paths. The scanner does not fetch network images.
-
-## CLI
-
-| Command | Role |
+| `path` | Behavior |
 | --- | --- |
-| `npx lake-cimg@latest scan-code [path]` | Reference audit (JSON default; `--plain` for text). Omit `path` = current dir; `path` = dir or one source file |
-| `npx lake-cimg@latest <path>` | Compress / WebP (`--help` for `-o`, `-s`, `-q`, `-r`) |
-| `npx lake-cimg@latest picture <input> -O <outDir>` | One source → AVIF + WebP + JPEG for `<picture>` |
+| *(omitted)* | Scans **`.`** (current working directory). Run from repo root to cover the tree. |
+| **Directory** | Recursively scans supported sources under that folder (honors `--no-recursive`). |
+| **Single file** | Only that file. Extension must be `.html`, `.htm`, `.vue`, `.pug`, `.js`, `.mjs`, `.cjs`, `.ts`, `.tsx`, or `.jsx`. |
 
-`npx lake-cimg@latest --help` — global options. `npx lake-cimg@latest scan-code --help` — `--limit`, `--issues-only`, `--no-recursive`, `--plain`.
+**Output:** stdout is **only** pretty-printed JSON: `items[]` with `issues`, `hints`, `snippet`, `intrinsicWidth` / `intrinsicHeight` when metadata was read, plus top-level `summary` and scan metadata. **`--issues-only`** drops rows with empty `issues`. For **`missing_dimensions`**, use **`intrinsicWidth` / `intrinsicHeight`** on the same item and/or the English hint that repeats them.
 
-## Examples
-
-**Whole project (from repo root, `path` omitted):**
+**Examples:**
 
 ```bash
 npx lake-cimg@latest scan-code
+npx lake-cimg@latest scan-code /absolute/path/to/src
+npx lake-cimg@latest scan-code /absolute/path/to/about.pug
 ```
 
-**Read-only audit (stdout = JSON for parsing):**
+More flags: `npx lake-cimg@latest scan-code --help` (e.g. `--limit`, `--issues-only`, `--no-recursive`). Prefer an **absolute** `path` if the shell cwd may not be the repo root.
 
-```bash
-npx lake-cimg@latest scan-code /absolute/path/to/project
-```
+## Workflow
 
-**Single file:**
+- [ ] **1. Scan (read-only):** `npx lake-cimg@latest scan-code [path]` — see **Invoke `scan-code`** above.
+- [ ] **2. Triage:** Prefer **`hints`** for what to change; use **`issues`** codes to group or filter. Common codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format` (consider AVIF/WebP + `<picture>` — match product/browser support), `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`.
+- [ ] **3. Fix then optimize:** Apply markup fixes using [reference.md](reference.md) templates (`<img>`, `<picture>`). For **all** raster refs that need format or responsive delivery, not only one hero row. Then run compression / stacks: `npx lake-cimg@latest <path> [options]`; for AVIF + WebP + JPEG from one source: `npx lake-cimg@latest picture <input> -O <outDir>` (details: package [README.md](../../README.md)).
 
-```bash
-npx lake-cimg@latest scan-code /absolute/path/to/src/about.pug
-```
+## Rules of thumb
 
-Use **`--plain`** when you want a short **text** summary in the terminal instead of JSON.
+- **Aspect ratio:** Match display ratio to intrinsic (w÷h), or use **`object-fit`** + explicit box / `aspect-ratio` for crop/letterbox.
+- **CLS:** Add `width` and `height` to `<img>`, or use CSS `aspect-ratio`. For `missing_dimensions`, fill in the exact `intrinsicWidth` / `intrinsicHeight`.
+- **Responsive:** `<picture>` and/or **`srcset` + `sizes`**; each `<source type="…">` must match the real file type; Generate width variants with `picture … -s <px>` or separate exports.
+- **LCP:** At most one hero per view: **`fetchPriority="high"`**, **`loading="eager"`**; lazy-load the rest.
+- **Alt:** Describe content and purpose; no keyword stuffing; **`alt=""`** only for decorative images.
 
-## Additional resources
+## What the scanner cannot resolve
 
-- **Alt text** (decorative `alt=""`, tone, anti-keyword-stuffing): [reference.md — Alt text](reference.md#alt-text)
-- Format choice, responsive `<picture>` patterns, and LCP markup examples: [reference.md](reference.md)
+Dynamic **`src`** without a static path → **`needs_manual_review`**. **`http(s):`**, **`data:`**, and path aliases (**`@/`**, **`~/`**, etc.) → **`cannot_resolve`** (no alias map reads; no network fetch).
+
+If **`hints`** mention alias skip: use **`rawRef`** and map the alias via Vite/webpack/tsconfig/Nuxt config. With a **real filesystem path**, run `npx lake-cimg@latest scan <resolved-path>` on assets or re-run **`scan-code`** on markup that uses resolvable relative paths. If unresolved, triage without intrinsic dimensions.
+
+## Other CLI (after scan-code)
+
+| Command | Role |
+| --- | --- |
+| `npx lake-cimg@latest <path>` | Compress / WebP — see `npx lake-cimg@latest --help` (`-o`, `-s`, `-q`, `-r`). |
+| `npx lake-cimg@latest picture <input> -O <outDir>` | One raster → AVIF + WebP + JPEG for `<picture>`. |

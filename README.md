@@ -110,7 +110,7 @@ npx lake-cimg@latest picture <input> -O <outDir> [选项]
 - **格式**：对 JPEG/PNG 等提示可考虑 WebP/AVIF 或 `picture` 子命令
 
 ```text
-npx lake-cimg@latest scan-code [path] [--no-recursive] [--limit <n>] [--issues-only] [--plain]
+npx lake-cimg@latest scan-code [path] [--no-recursive] [--limit <n>] [--issues-only]
 ```
 
 | 参数 / 选项 | 说明 |
@@ -118,8 +118,7 @@ npx lake-cimg@latest scan-code [path] [--no-recursive] [--limit <n>] [--issues-o
 | `path` | 可选。省略时等价于 `.`（当前工作目录，一般在项目根执行）。可为**目录**（递归扫描其下源码）或**单个源码文件**（如某 `.pug` / `.vue`，只扫该文件） |
 | `-r, --recursive` | 递归子目录（默认开启；仅对**目录**扫描有效） |
 | `--limit <n>` | 最多输出多少条引用点（默认 `500`） |
-| `--issues-only` | 仅输出 `issues` 非空的条目 |
-| `--plain` | 简要文本而非 JSON（默认 stdout 为 JSON） |
+| `--issues-only` | 仅输出 `issues` 非空的条目（全绿引用不出现在 `items` 里，JSON 更小、省 token） |
 
 目录扫描时默认会跳过 `node_modules`、`dist`、`.git` 等子目录。动态 `src`、远程 URL、别名路径会进入报告但通常无法解析到磁盘文件。
 
@@ -130,8 +129,6 @@ npx lake-cimg@latest scan-code [path] [--no-recursive] [--limit <n>] [--issues-o
 3. **占位与 CLS**：保留真实 **`width` / `height`**，或用 `aspect-ratio`（与真实比例一致）。
 4. **响应式**：若同一图有多套宽度，应为每条 `source`/`img` 提供 **`sizes`** 与多宽度 `srcSet`（需配合构建或 `npx lake-cimg@latest picture` 多次导出不同 `size`）；当前 CLI 一次导出的是单套 URL。
 5. **路径**：把生成文件放到 **`public/`**（如 Next.js）或 CDN，片段里的路径与部署前缀一致。
-
-`--snippet` 输出的是可直接改的模板；生产环境请按设计稿补上准确的 `width`/`height`/`alt`/`sizes`。
 
 ## 支持格式
 

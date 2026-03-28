@@ -1,6 +1,6 @@
 {
   "name": "lake-cimg",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "Batch image compression to WebP — CLI plus Agent Skills for frontend image audit (scan-code, picture stack)",
   "keywords": [
     "image",
@@ -34,7 +34,8 @@
   },
   "scripts": {
     "compress": "node bin/cimg.js",
-    "start": "node bin/cimg.js"
+    "start": "node bin/cimg.js",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "commander": "^12.0.0",
