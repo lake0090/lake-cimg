@@ -8,12 +8,15 @@ Supplement for [SKILL.md](SKILL.md). Copy-paste starting points; adjust paths, d
 
 ```html
 <img
-  src="photo.jpg"
-  width="1200"
-  height="800"
-  alt="Describe subject and purpose on this page"
-  loading="lazy"
-  decoding="async">
+  srcset="
+    maine-coon-nap-320w.webp 320w,
+    maine-coon-nap-480w.webp 480w,
+    maine-coon-nap-800w.webp 800w
+  "
+  sizes="(max-width: 320px) 280px, (max-width: 480px) 440px, 800px"
+  src="maine-coon-nap-800w.webp"
+  alt="A watercolor illustration of a maine coon napping leisurely in front of a fireplace"
+/>
 ```
 
 ## `<picture>` + `srcset` + `sizes`
@@ -24,26 +27,23 @@ Supplement for [SKILL.md](SKILL.md). Copy-paste starting points; adjust paths, d
 <picture>
   <source
     type="image/avif"
-    srcset="hero-400.avif 400w,
-            hero-800.avif 800w,
-            hero-1200.avif 1200w"
-    sizes="(max-width: 600px) 100vw, 50vw">
+    srcset="hero-400.avif 400w, hero-800.avif 800w, hero-1200.avif 1200w"
+    sizes="(max-width: 600px) 100vw, 50vw"
+  />
   <source
     type="image/webp"
-    srcset="hero-400.webp 400w,
-            hero-800.webp 800w,
-            hero-1200.webp 1200w"
-    sizes="(max-width: 600px) 100vw, 50vw">
+    srcset="hero-400.webp 400w, hero-800.webp 800w, hero-1200.webp 1200w"
+    sizes="(max-width: 600px) 100vw, 50vw"
+  />
   <img
     src="hero-800.jpg"
-    srcset="hero-400.jpg 400w,
-            hero-800.jpg 800w,
-            hero-1200.jpg 1200w"
+    srcset="hero-400.jpg 400w, hero-800.jpg 800w, hero-1200.jpg 1200w"
     sizes="(max-width: 600px) 100vw, 50vw"
     width="1200"
     height="600"
     alt="Describe subject and purpose on this page"
     loading="lazy"
-    decoding="async">
+    decoding="async"
+  />
 </picture>
 ```

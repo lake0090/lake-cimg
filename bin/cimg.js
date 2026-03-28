@@ -217,6 +217,20 @@ program
     }
   });
 
+function collectString(val, memo) {
+  const arr = memo ?? [];
+  arr.push(val);
+  return arr;
+}
+
+function parseAliasPair(val) {
+  const i = val.indexOf("=");
+  if (i <= 0) {
+    throw new Error("格式须为 key=相对路径，例如 @=src 或 @assets=src/assets");
+  }
+  return [val.slice(0, i).trim(), val.slice(i + 1).trim()];
+}
+
 program
   .command("scan-code [path]")
   .description(
@@ -231,17 +245,46 @@ program
     500
   )
   .option("--issues-only", "仅输出含 issues 的条目")
+  .option(
+    "--project-root <dir>",
+    "解析 /images/...、@/... 时的工程根目录（默认当前工作目录）"
+  )
+  .option(
+    "--public-dir <dir>",
+    "根路径下静态目录，可重复；用于解析以 / 开头的 URL 路径（默认 public、static）",
+    collectString
+  )
+  .option(
+    "--alias <pair>",
+    "路径别名 key=相对工程根的路径，可重复；默认 @=src。例: --alias @aaa=packages/aaa",
+    (v, prev) => {
+      const pair = parseAliasPair(v);
+      return [...(prev ?? []), pair];
+    },
+    []
+  )
   .action(async (pathArg, opts) => {
     const raw =
       pathArg != null && typeof pathArg === "string" ? pathArg.trim() : "";
     const root = resolveUserPath(raw !== "" ? raw : ".");
     const limit = Number.isNaN(opts.limit) ? 500 : opts.limit;
+    const aliasList = opts.alias ?? [];
+    const aliases =
+      aliasList.length > 0 ? Object.fromEntries(aliasList) : undefined;
+    const publicDirs = opts.publicDir;
     try {
       const result = await scanCodeReferences(root, {
         recursive: opts.recursive !== false,
         cwd: process.cwd(),
         limit,
         issuesOnly: !!opts.issuesOnly,
+        ...(opts.projectRoot != null && String(opts.projectRoot).trim() !== ""
+          ? { projectRoot: String(opts.projectRoot).trim() }
+          : {}),
+        ...(aliases != null ? { aliases } : {}),
+        ...(publicDirs != null && publicDirs.length > 0
+          ? { publicDirs }
+          : {}),
       });
       console.log(JSON.stringify(result, null, 2));
       process.exit(0);

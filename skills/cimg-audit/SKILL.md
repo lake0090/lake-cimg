@@ -38,14 +38,14 @@ More flags: `npx lake-cimg@latest scan-code --help` (e.g. `--limit`, `--issues-o
 ## Workflow
 
 - [ ] **1. Scan (read-only):** `npx lake-cimg@latest scan-code [path]` — see **Invoke `scan-code`** above.
-- [ ] **2. Triage:** Prefer **`hints`** for what to change; use **`issues`** codes to group or filter. Common codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format` (consider AVIF/WebP + `<picture>` — match product/browser support), `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`.
-- [ ] **3. Fix then optimize:** Apply markup fixes using [reference.md](reference.md) templates (`<img>`, `<picture>`). For **all** raster refs that need format or responsive delivery, not only one hero row. Then run compression / stacks: `npx lake-cimg@latest <path> [options]`; for AVIF + WebP + JPEG from one source: `npx lake-cimg@latest picture <input> -O <outDir>` (details: package [README.md](../../README.md)).
+- [ ] **2. Triage:** Prefer **`hints`** for what to change; use **`issues`** codes to group or filter. Common codes: `missing_dimensions`, `aspect_ratio_mismatch`, `suggest_modern_format` (default: **single WebP** — point `src` / `srcset` at `.webp` after exporting; use **`<picture>`** with AVIF/WebP + legacy fallback **only if the user explicitly asks** for multi-format markup or old-browser JPEG/PNG fallback), `needs_manual_review`, `missing_src`, `cannot_resolve`, `cannot_read_metadata`.
+- [ ] **3. Fix then optimize:** Apply markup using [reference.md](reference.md) (`<img>` first; `<picture>` only when the user requires it). For **all** raster refs that need format or responsive delivery, not only one hero row. Compress / emit WebP: `npx lake-cimg@latest <path> [options]`. **Optional** full stack for `<picture>` when requested: `npx lake-cimg@latest picture <input> -O <outDir>` (details: package [README.md](../../README.md)).
 
 ## Rules of thumb
 
 - **Aspect ratio:** Match display ratio to intrinsic (w÷h), or use **`object-fit`** + explicit box / `aspect-ratio` for crop/letterbox.
 - **CLS:** Add `width` and `height` to `<img>`, or use CSS `aspect-ratio`. For `missing_dimensions`, fill in the exact `intrinsicWidth` / `intrinsicHeight`.
-- **Responsive:** `<picture>` and/or **`srcset` + `sizes`**; each `<source type="…">` must match the real file type; Generate width variants with `picture … -s <px>` or separate exports.
+- **Responsive:** **`srcset` + `sizes`** on `<img>` (works with a single WebP). **`<picture>`** only when the user wants multiple formats in HTML; each `<source type="…">` must match the real file type. Width variants: separate files or `picture … -s <px>` when building a stack.
 - **LCP:** At most one hero per view: **`fetchPriority="high"`**, **`loading="eager"`**; lazy-load the rest.
 - **Alt:** Describe content and purpose; no keyword stuffing; **`alt=""`** only for decorative images.
 
@@ -60,4 +60,4 @@ If **`hints`** mention alias skip: use **`rawRef`** and map the alias via Vite/w
 | Command | Role |
 | --- | --- |
 | `npx lake-cimg@latest <path>` | Compress / WebP — see `npx lake-cimg@latest --help` (`-o`, `-s`, `-q`, `-r`). |
-| `npx lake-cimg@latest picture <input> -O <outDir>` | One raster → AVIF + WebP + JPEG for `<picture>`. |
+| `npx lake-cimg@latest picture <input> -O <outDir>` | One raster → AVIF + WebP + JPEG **when the user wants `<picture>` / multi-format**; not the default if single WebP is enough. |
