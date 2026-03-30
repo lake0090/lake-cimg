@@ -1,10 +1,10 @@
 ---
 name: cimg-audit
-description: >-
-  Audits HTML, Vue, Pug, JS, TS, TSX, and JSX image references against intrinsic
+description: Audits HTML, Vue, Pug, JS, TS, TSX, and JSX image references against intrinsic
   dimensions for CLS risk, aspect-ratio mismatches, and modern-format hints.
   Use when optimizing images, fixing layout shift, LCP heroes, picture/srcset,
   or running lake-cimg scan-code via npx lake-cimg@latest.
+disable-model-invocation: true
 ---
 
 # cimg image audit
