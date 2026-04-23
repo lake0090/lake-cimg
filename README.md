@@ -10,7 +10,6 @@
 - 处理过程输出体积对比；失败时非零退出码
 - **`picture` 子命令**：从单张 PNG/JPEG/WebP 源图一次生成 **AVIF + WebP + JPEG**，配合前端 `<picture>` 做渐进增强（不支持 GIF 动图源）
 - **`scan-code` 子命令**：扫描源码中的图片引用并结合真实像素尺寸给出 CLS / 比例等建议（只读）
-- **Agent Skill**：通过 [`npx skills add`](https://www.npmjs.com/package/skills) 安装 [`skills/cimg-audit`](skills/cimg-audit/SKILL.md)（技能名 **`cimg-audit`**，好记），在 Cursor 等环境里用自然语言驱动 `npx lake-cimg@latest …`
 
 ## 环境要求
 
@@ -156,38 +155,6 @@ npx lake-cimg@latest scan-code [path] [--no-recursive] [--limit <n>] [--issues-o
 
 适合在构建脚本或 Node 服务中复用同一套逻辑。
 
-## Agent Skill（Skills CLI / `npx skills add`）
-
-本仓库按 [Skills CLI](https://www.npmjs.com/package/skills) 约定提供可安装 Skill，见目录 [`skills/`](skills/README.md)（与 [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) 的 `skills/<name>/SKILL.md` 布局一致）。技能目录名为 **`cimg-audit`**（短、与包名一致，便于 `-s cimg-audit`）。
-
-**何时需要 / 触发条件（选用本 Skill 的典型场景）**
-
-- 对话或任务涉及：**图片体积与格式**（WebP/AVIF）、**`<picture>` / `srcset`**、**LCP / CLS / layout shift**、首屏大图
-- 要先做**只读**引用审计再改代码：用 **`npx lake-cimg@latest scan-code`** 出 JSON，再按需改标签或压缩
-- 希望 Agent **按固定流程**：先 `scan-code` → 再按需 `npx lake-cimg@latest` 压缩或 `picture` 多格式输出
-
-更细的英文说明见 [`skills/README.md` 的「When to use」一节](skills/README.md#when-to-use)。
-
-**从 GitHub 安装**（需已推送；将 `lake0090/lake-cimg` 换成你的 fork 若不同）：
-
-```bash
-# 安装到用户级（-g），仅本 skill（-s），跳过确认（-y）
-npx skills add lake0090/lake-cimg -s cimg-audit -g -y
-
-# 仅安装到当前项目
-npx skills add lake0090/lake-cimg -s cimg-audit -y
-```
-
-**本地克隆开发时**（在仓库根目录执行）：
-
-```bash
-npx skills add . -s cimg-audit -y
-```
-
-可选：`--agent cursor` 等，见 `npx skills add --help`。Skill 正文在 [`skills/cimg-audit/SKILL.md`](skills/cimg-audit/SKILL.md)，指导用 **`npx lake-cimg@latest scan-code`** 与压缩 / `picture` 子命令配合使用。
-
-安装 Skill 后，在 Agent 对话里可直接让模型按 Skill 流程执行（例如：先 `scan-code` 再按需压缩）；CLI 与 `npx` 均在本地执行，图片不会上传到云端。
-
 ## 常见问题
 
 - **写权限**：`-o` 指向的目录需可创建/写入；否则 sharp 或 `fs` 会报错。
@@ -198,7 +165,7 @@ npx skills add . -s cimg-audit -y
 
 - **Lighthouse 审计**：后续接入 [Lighthouse](https://developer.chrome.com/docs/lighthouse)（或 CI 中的 Lighthouse CI），对典型页面做性能 / 最佳实践等审计。
 - **审计前后对比**：在引入 `scan-code`、压缩、`picture` 等优化前后各跑一轮，保存报告（JSON/HTML），对比 LCP、CLS、资源体积等指标，量化改动效果。
-- **专项优化**：根据 Lighthouse 报告中的具体项（如 LCP 候选、未使用 CSS、图片尺寸等）做针对性迭代，与现有 CLI / Skill 工作流互补。
+- **专项优化**：根据 Lighthouse 报告中的具体项（如 LCP 候选、未使用 CSS、图片尺寸等）做针对性迭代，与现有 CLI 工作流互补。
 
 ## 发布到 npm（维护者）
 
