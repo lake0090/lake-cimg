@@ -298,7 +298,7 @@ program
   .command("scan [input]")
   .description("扫描图片并给出优化建议（不修改文件）")
   .option("-r, --recursive", "递归处理子目录")
-  .option("--json", "以 JSON 格式输出（适合 AI/脚本消费）")
+  .option("--json", "以 JSON 格式输出（适合脚本与工具消费）")
   .action(async function scanAction(input, opts) {
     if (!input || input.trim() === "") {
       this.outputHelp();

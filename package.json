@@ -1,6 +1,6 @@
 {
   "name": "lake-cimg",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Batch image compression to WebP — CLI with picture stack and scan-code for frontend image audit",
   "keywords": [
     "image",

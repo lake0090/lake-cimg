@@ -72,3 +72,31 @@ test("resolves custom @aaa alias and ~@/ as @/", async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("resolves /images/... under static/ when public/ has no match", async () => {
+  const root = await mkdtemp(join(tmpdir(), "cimg-scan-"));
+  try {
+    await mkdir(join(root, "static", "images"), { recursive: true });
+    await writeFile(join(root, "static", "images", "only-here.png"), MIN_PNG);
+    await writeFile(
+      join(root, "p.html"),
+      `<img src="/images/only-here.png" width="1" height="1" alt="x" />`
+    );
+
+    const result = await scanCodeReferences(join(root, "p.html"), {
+      cwd: root,
+      recursive: false,
+      limit: 50,
+    });
+
+    const row = result.items.find(
+      (r) => r.rawRef === "/images/only-here.png"
+    );
+    assert.equal(
+      row?.absolutePath,
+      join(root, "static", "images", "only-here.png")
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
